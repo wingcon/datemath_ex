@@ -9,7 +9,17 @@ defmodule DatemathEx do
   @month 30
   @week 7
 
- defparsec :parse,
+  @spec parse(input :: String.t()) :: output :: {:ok, DateTime.t()}
+  def parse(input) do
+    with {:ok, [dt], _rest, _meta, _pos, _size} <- parse_input(input) do
+      {:ok, dt}
+    else
+      {:error, reason, _input, _meta, _pos, _size} ->
+        {:error, reason}
+    end
+  end
+
+ defparsecp :parse_input,
   choice([
     string("now")
     |> map({:now, []})
@@ -70,13 +80,13 @@ defmodule DatemathEx do
         {:expression, [op, amount, unit]}, acc ->
           amount = sign_value(amount, op)
           case unit do
-            "y" -> DateTime.add(acc, amount * @year, :day)
-            "M" -> DateTime.add(acc, amount * @month, :day)
-            "w" -> DateTime.add(acc, amount * @week, :day)
-            "d" -> DateTime.add(acc, amount, :day)
-            u when u in ~w(h H) -> DateTime.add(acc, amount, :hour)
-            "m" -> DateTime.add(acc, amount, :minute)
-            "s" -> DateTime.add(acc, amount, :second)
+            "y" -> Timex.shift(acc, years: amount)
+            "M" -> Timex.shift(acc, months: amount)
+            "w" -> Timex.shift(acc, days: amount * 7)
+            "d" -> Timex.shift(acc, days: amount)
+            u when u in ~w(h H) -> Timex.shift(acc, hours: amount)
+            "m" -> Timex.shift(acc, minutes: amount)
+            "s" -> Timex.shift(acc, seconds: amount)
           end
         {:round, [""]}, acc -> acc
         {:round, [unit]}, acc ->
