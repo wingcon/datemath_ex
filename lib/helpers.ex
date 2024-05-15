@@ -1,6 +1,16 @@
 defmodule DatemathEx.Helpers do
   import NimbleParsec
 
+  def ignore_whitespace(combinator) do
+    combinator
+    |> concat(
+      ascii_string([?\s], min: 1)
+      |> repeat()
+      |> ignore
+      |> optional()
+    )
+  end
+
   def delimiter(combinator) do
     combinator
     |> ignore(choice([

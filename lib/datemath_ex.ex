@@ -13,13 +13,16 @@ defmodule DatemathEx do
   choice([
     string("now")
     |> map({:now, []})
+    |> ignore_whitespace
     |> parsec(:math_expressions)
     |> parsec(:maybe_round_down)
     |> eos()
     |> reduce({:reduce_expressions, []}),
     date()
-    |> map({:to_date, []})
+    |> map({:to_datetime, []})
+    |> ignore_whitespace
     |> ignore(string("||"))
+    |> ignore_whitespace
     |> parsec(:math_expressions)
     |> parsec(:maybe_round_down)
     |> eos()
@@ -29,13 +32,17 @@ defmodule DatemathEx do
 
   defcombinatorp :math_expressions,
    choice([string("+"), string("-")])
+   |> ignore_whitespace
    |> integer(min: 1, max: 10)
+   |> ignore_whitespace
    |> ensure_time_unit()
+   |> ignore_whitespace
    |> tag(:expression)
    |> repeat()
 
    defcombinatorp :maybe_round_down,
     ignore(string("/"))
+    |> ignore_whitespace
     |> ensure_time_unit()
     |> optional()
     |> wrap()
@@ -47,7 +54,7 @@ defmodule DatemathEx do
       DateTime.utc_now()
     end
 
-    defp to_date([y, m, d]) do
+    defp to_datetime([y, m, d]) do
       DateTime.new!(Date.new!(y, m, d), ~T/00:00:00/)
     end
 
