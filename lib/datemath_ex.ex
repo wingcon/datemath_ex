@@ -58,11 +58,11 @@ defmodule DatemathEx do
     end
 
     defp to_datetime([y, m, d]) do
-      DateTime.new!(Date.new!(y, m, d), ~T/00:00:00/)
+      DateTime.new!(Date.new!(y, m, d), ~T/00:00:00.000/)
     end
 
     defp to_datetime([y, m, d, h, min, s]) do
-      DateTime.new!(Date.new!(y, m, d), Time.new!(h, min, s))
+      DateTime.new!(Date.new!(y, m, d), Time.new!(h, min, s, {0,3}))
     end
 
     defp reduce_expressions([dt|rest]) when is_struct(dt, DateTime) do
