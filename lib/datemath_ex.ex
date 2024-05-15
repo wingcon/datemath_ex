@@ -5,10 +5,6 @@ defmodule DatemathEx do
 
  import DatemathEx.Helpers
 
-  @year 365
-  @month 30
-  @week 7
-
   @spec parse(input :: String.t()) :: output :: {:ok, DateTime.t()}
   def parse(input) do
     with {:ok, [dt], _rest, _meta, _pos, _size} <- parse_input(input) do
@@ -25,7 +21,6 @@ defmodule DatemathEx do
     |> map({:now, []})
     |> ignore_whitespace
     |> parsec(:math_expressions)
-    |> parsec(:maybe_round_down)
     |> eos()
     |> reduce({:reduce_expressions, []}),
     choice([
@@ -37,31 +32,30 @@ defmodule DatemathEx do
     |> ignore(string("||"))
     |> ignore_whitespace
     |> parsec(:math_expressions)
-    |> parsec(:maybe_round_down)
     |> eos()
     |> reduce({:reduce_expressions, []})
    ])
 
 
   defcombinatorp :math_expressions,
-   choice([string("+"), string("-")])
-   |> ignore_whitespace
-   |> integer(min: 1, max: 10)
-   |> ignore_whitespace
-   |> ensure_time_unit()
-   |> ignore_whitespace
-   |> tag(:expression)
-   |> repeat()
+  choice([
+    choice([string("+"), string("-")])
+    |> ignore_whitespace
+    |> integer(min: 1, max: 10)
+    |> ignore_whitespace
+    |> ensure_time_unit()
+    |> ignore_whitespace
+    |> tag(:expression),
 
-   defcombinatorp :maybe_round_down,
     ignore(string("/"))
     |> ignore_whitespace
     |> ensure_time_unit()
-    |> optional()
     |> wrap()
     |> map({Enum, :join, []})
     |> tag(:round)
-
+  ])
+  |> repeat
+  |> optional
 
     def now(_args) do
       DateTime.utc_now()
