@@ -18,7 +18,10 @@ defmodule DatemathEx do
     |> parsec(:maybe_round_down)
     |> eos()
     |> reduce({:reduce_expressions, []}),
-    date()
+    choice([
+      datetime(),
+      date()
+    ])
     |> map({:to_datetime, []})
     |> ignore_whitespace
     |> ignore(string("||"))
@@ -56,6 +59,10 @@ defmodule DatemathEx do
 
     defp to_datetime([y, m, d]) do
       DateTime.new!(Date.new!(y, m, d), ~T/00:00:00/)
+    end
+
+    defp to_datetime([y, m, d, h, min, s]) do
+      DateTime.new!(Date.new!(y, m, d), Time.new!(h, min, s))
     end
 
     defp reduce_expressions([dt|rest]) when is_struct(dt, DateTime) do

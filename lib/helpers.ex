@@ -11,20 +11,26 @@ defmodule DatemathEx.Helpers do
     )
   end
 
-  def delimiter(combinator) do
-    combinator
-    |> ignore(choice([
-      string("-"),
-      string("/"),
-      string(".")
-    ]))
-  end
-
   def date do
     integer(4)
-    |> delimiter()
+    |> ignore(choice([string("-"), string(".")]))
     |> integer(2)
-    |> delimiter()
+    |> ignore(choice([string("-"), string(".")]))
+    |> integer(2)
+    |> wrap()
+  end
+
+  def datetime do
+    integer(4)
+    |> ignore(choice([string("-"), string(".")]))
+    |> integer(2)
+    |> ignore(choice([string("-"), string(".")]))
+    |> integer(2)
+    |> ignore(string("T"))
+    |> integer(2)
+    |> ignore(string(":"))
+    |> integer(2)
+    |> ignore(string(":"))
     |> integer(2)
     |> wrap()
   end
