@@ -1,6 +1,6 @@
 # DatemathEx
 
-**TODO: Add description**
+A parsers for [datemath syntax](https://www.elastic.co/guide/en/elasticsearch/reference/7.17/common-options.html#date-math).
 
 ## Installation
 
@@ -15,7 +15,26 @@ def deps do
 end
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/datemath_ex>.
+## Usage
+```elixir
+iex(1)> DatemathEx.parse "2020-01-01||+1d"
+{:ok, ~U[2020-01-02 00:00:00.000Z]}
+
+iex(2)> DatemathEx.parse "2020-01-01T12:00:00||+31d+2h"
+{:ok, ~U[2020-02-01 14:00:00.000000Z]}
+
+iex(3)> DatemathEx.parse "now-1000s/h"                 
+{:ok, ~U[2024-05-16 08:00:00Z]}
+
+iex(4)> DatemathEx.parse "now*1h"     
+{:error,
+ "expected ISO datetime anchor while processing UTC now anchor or ISO datetime anchor"}
+```
+
+
+## Missing Functionality
+- Detailed Error report
+- Errors for wrong ISO datetime anchors
+- Timezone for ISO anchor
+
 
