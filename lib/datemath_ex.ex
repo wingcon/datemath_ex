@@ -64,16 +64,16 @@ defmodule DatemathEx do
   |> repeat
   |> optional
 
-    def now(_args) do
+    defp now(_args) do
       DateTime.utc_now()
     end
 
-    def overwrite_now(rest, [_old_now], context, _line, _offset)
+    defp overwrite_now(rest, [_old_now], context, _line, _offset)
       when is_map_key(context, :now) and is_struct(context.now, DateTime) do
       {rest, [context.now], context}
     end
 
-    def overwrite_now(rest, args, context, _line, _offset) do
+    defp overwrite_now(rest, args, context, _line, _offset) do
       {rest, args, context}
     end
 
