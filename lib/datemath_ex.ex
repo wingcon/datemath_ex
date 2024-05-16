@@ -21,7 +21,7 @@ defmodule DatemathEx do
     end
   end
 
- defparsecp :parse_input,
+ defparsec :parse_input,
   choice([
     string("now")
     |> map({:now, []})
@@ -29,40 +29,41 @@ defmodule DatemathEx do
     |> ignore_whitespace
     |> parsec(:math_expressions)
     |> eos()
-    |> reduce({:reduce_expressions, []}),
+    |> reduce({:reduce_expressions, []})
+    |> label("UTC now anchor"),
     choice([
       datetime(),
       date()
     ])
-    |> map({:to_datetime, []})
     |> ignore_whitespace
     |> ignore(string("||"))
     |> ignore_whitespace
     |> parsec(:math_expressions)
     |> eos()
     |> reduce({:reduce_expressions, []})
+    |> label("ISO datetime anchor")
    ])
 
 
   defcombinatorp :math_expressions,
-  choice([
-    choice([string("+"), string("-")])
-    |> ignore_whitespace
-    |> integer(min: 1, max: 10)
-    |> ignore_whitespace
-    |> ensure_time_unit()
-    |> ignore_whitespace
-    |> tag(:expression),
+    choice([
+      choice([string("+"), string("-")])
+      |> ignore_whitespace
+      |> integer(min: 1, max: 10)
+      |> ignore_whitespace
+      |> ensure_time_unit()
+      |> ignore_whitespace
+      |> tag(:expression),
 
-    ignore(string("/"))
-    |> ignore_whitespace
-    |> ensure_time_unit()
-    |> wrap()
-    |> map({Enum, :join, []})
-    |> tag(:round)
-  ])
-  |> repeat
-  |> optional
+      ignore(string("/"))
+      |> ignore_whitespace
+      |> ensure_time_unit()
+      |> wrap()
+      |> map({Enum, :join, []})
+      |> tag(:round)
+    ])
+    |> repeat
+    |> optional
 
     defp now(_args) do
       DateTime.utc_now()
@@ -75,14 +76,6 @@ defmodule DatemathEx do
 
     defp overwrite_now(rest, args, context, _line, _offset) do
       {rest, args, context}
-    end
-
-    defp to_datetime([y, m, d]) do
-      DateTime.new!(Date.new!(y, m, d), ~T/00:00:00.000/)
-    end
-
-    defp to_datetime([y, m, d, h, min, s]) do
-      DateTime.new!(Date.new!(y, m, d), Time.new!(h, min, s, {0,3}))
     end
 
     defp reduce_expressions([dt|rest]) when is_struct(dt, DateTime) do

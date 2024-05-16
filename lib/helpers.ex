@@ -18,6 +18,7 @@ defmodule DatemathEx.Helpers do
     |> ignore(choice([string("-"), string(".")]))
     |> integer(2)
     |> wrap()
+    |> map({:to_datetime, []})
   end
 
   def datetime do
@@ -33,6 +34,7 @@ defmodule DatemathEx.Helpers do
     |> ignore(string(":"))
     |> integer(2)
     |> wrap()
+    |> map({:to_datetime, []})
   end
 
   @spec ensure_time_unit(NimbleParsec.t()) :: NimbleParsec.t()
@@ -48,6 +50,25 @@ defmodule DatemathEx.Helpers do
       string("m"),
       string("s"),
     ])
+  end
+
+  def to_datetime([y, m, d]) do
+    with {:ok, date} <- Date.new(y, m, d),
+      {:ok, datetime} <- DateTime.new(date, ~T/00:00:00.000/) do
+        datetime
+    else
+      error -> error
+    end
+  end
+
+  def to_datetime([y, m, d, h, min, s]) do
+    with {:ok, date} <- Date.new(y, m, d),
+      {:ok, time} <- Time.new(h, min, s, {0,3}),
+    {:ok, datetime} <- DateTime.new(date, time) do
+      datetime
+    else
+      error -> error
+    end
   end
 
 end
