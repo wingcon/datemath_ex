@@ -39,7 +39,8 @@ defmodule DatemathEx.MixProject do
   defp deps do
     [
       {:nimble_parsec, "~> 1.4.0"},
-      {:timex, "~> 3.7"}
+      {:timex, "~> 3.7"},
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
     ]
   end
 end
