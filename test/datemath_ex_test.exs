@@ -36,6 +36,14 @@ defmodule DatemathExTest do
 			out: ~U"2013-09-21T00:00:00.000Z",
 		},
 		%{
+			in:  "2014-11-18T13:00:00||+13h",
+			out: ~U"2014-11-19T02:00:00.000Z",
+		},
+		%{
+			in:  "2014-11-18T13:00:00||-1h",
+			out: ~U"2014-11-18T12:00:00.000Z",
+		},
+		%{
 			in:  "2014-11-18T14:27:32||+60s",
 			out: ~U"2014-11-18T14:28:32.000Z",
 		},
@@ -50,6 +58,10 @@ defmodule DatemathExTest do
 		%{
 			in:  "2014-11-01T14:27:32||/w",
 			out: ~U"2014-10-27T00:00:00.000Z",
+		},
+		%{
+			in:  "2014-11-15T14:27:32||/d",
+			out: ~U"2014-11-15T00:00:00.000Z",
 		},
   ]
 
@@ -78,43 +90,21 @@ defmodule DatemathExTest do
 
   @now [
     %{
-			now: "2014-11-18T14:27:32.000Z",
-
+			now: ~U"2014-11-18T14:27:32.000Z",
 			in:  "now",
 			out: ~U"2014-11-18T14:27:32.000Z",
 		},
 		%{
-			now: "2014-11-18T14:27:32.000Z",
-
+			now: ~U"2014-11-18T14:27:32.000Z",
 			in:  "now+1M",
 			out: ~U"2014-12-18T14:27:32.000Z",
 		},
 		%{
-			now: "2014-11-18T14:27:32.000Z",
-
+			now: ~U"2014-11-18T14:27:32.000Z",
 			in:  "now/m",
 			out: ~U"2014-11-18T14:27:00.000Z",
 		},
-		%{
-			now:     "2014-11-18T14:27:32.000Z",
-			roundUp: true,
-
-			in:  "now/m",
-			out: ~U"2014-11-18T14:27:59.999Z",
-		},
   ]
-
-  @weekdays [
-		%{
-			in:  "2020-03-12||/w",
-			out: ~U"2020-03-08T00:00:00Z",
-		},
-		%{
-			in:  "2020-03-12||/w",
-			out: ~U"2020-03-09T00:00:00Z",
-		},
-  ]
-
 
   test "basic math" do
     for %{in: input, out: out} <- @basic_math do
@@ -125,17 +115,17 @@ defmodule DatemathExTest do
 
   test "multiple adjustments" do
     for %{in: input, out: out} <- @multiple_adjustments do
-      {:ok, dt}  = DatemathEx.parse input
+			{:ok, dt}  = DatemathEx.parse input
       assert DateTime.compare(out, dt) == :eq
     end
   end
 
-  #test "now" do
-  #  for %{in: _input, out: _out} <- @now do
-  #    {:ok, dt}  = DatemathEx.parse input
-  #    assert DateTime.compare(out, dt) == :eq
-  #  end
-  #end
+  test "now" do
+    for %{now: now, in: input, out: out} <- @now do
+			{:ok, dt}  = DatemathEx.parse(input, now: now)
+      assert DateTime.compare(out, dt) == :eq
+    end
+  end
 
   test "weekday" do
     {:ok, dt}  = DatemathEx.parse "2020-03-12||/w"

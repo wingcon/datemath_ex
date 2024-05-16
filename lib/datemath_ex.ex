@@ -5,9 +5,15 @@ defmodule DatemathEx do
 
  import DatemathEx.Helpers
 
-  @spec parse(input :: String.t()) :: output :: {:ok, DateTime.t()}
-  def parse(input) do
-    with {:ok, [dt], _rest, _meta, _pos, _size} <- parse_input(input) do
+  @doc """
+  Parses datemath syntax
+
+  ## Options
+  - `now`: `DateTime` struct that overwrites now
+  """
+  @spec parse(input :: String.t(), opts :: keyword()) :: output :: {:ok, DateTime.t()}
+  def parse(input, opts \\ []) do
+    with {:ok, [dt], _rest, _meta, _pos, _size} <- parse_input(input, context: Map.new(opts)) do
       {:ok, dt}
     else
       {:error, reason, _input, _meta, _pos, _size} ->
@@ -19,6 +25,7 @@ defmodule DatemathEx do
   choice([
     string("now")
     |> map({:now, []})
+    |> post_traverse({:overwrite_now, []})
     |> ignore_whitespace
     |> parsec(:math_expressions)
     |> eos()
@@ -61,6 +68,15 @@ defmodule DatemathEx do
       DateTime.utc_now()
     end
 
+    def overwrite_now(rest, [_old_now], context, _line, _offset)
+      when is_map_key(context, :now) and is_struct(context.now, DateTime) do
+      {rest, [context.now], context}
+    end
+
+    def overwrite_now(rest, args, context, _line, _offset) do
+      {rest, args, context}
+    end
+
     defp to_datetime([y, m, d]) do
       DateTime.new!(Date.new!(y, m, d), ~T/00:00:00.000/)
     end
@@ -88,10 +104,10 @@ defmodule DatemathEx do
             "y" -> DateTime.new!(Date.new!(acc.year, 1, 1), ~T/00:00:00/)
             "M" -> DateTime.new!(Date.beginning_of_month(acc), ~T/00:00:00/)
             "w" -> DateTime.new!(Date.beginning_of_week(acc), ~T/00:00:00/)
-            "d" -> DateTime.new!(Date.new!(acc.year, acc.month, 1), ~T/00:00:00/)
+            "d" -> DateTime.new!(DateTime.to_date(acc), ~T/00:00:00/)
             u when u in ~w(h H) -> DateTime.new!(DateTime.to_date(acc), Time.new!(acc.hour, 0, 0))
-            "m" -> DateTime.new!(DateTime.to_date(acc), Time.new!(acc.hour, 0, 0))
-            "s" -> DateTime.new!(DateTime.to_date(acc), Time.new!(acc.hour, 0, 0))
+            "m" -> DateTime.new!(DateTime.to_date(acc), Time.new!(acc.hour, acc.minute, 0))
+            "s" -> DateTime.new!(DateTime.to_date(acc), DateTime.to_time(acc))
           end
 
       end)
