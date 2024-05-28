@@ -11,7 +11,7 @@ defmodule DatemathEx do
   ## Options
   - `now`: `DateTime` struct that overwrites now
   """
-  @spec parse(input :: String.t(), opts :: keyword()) :: output :: {:ok, DateTime.t()}
+  @spec parse(input :: String.t(), opts :: keyword()) :: {:ok, DateTime.t()} | {:error, reason :: String.t()}
   def parse(input, opts \\ []) do
     with {:ok, [dt], _rest, _meta, _pos, _size} <- parse_input(input, context: Map.new(opts)) do
       {:ok, dt}
