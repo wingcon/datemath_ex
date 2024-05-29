@@ -10,7 +10,7 @@ by adding `datemath_ex` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:datemath_ex, "~> 0.1.0"}
+    {:datemath_ex, "~> 0.2.0"}
   ]
 end
 ```
@@ -26,15 +26,9 @@ iex(2)> DatemathEx.parse "2020-01-01T12:00:00||+31d+2h"
 iex(3)> DatemathEx.parse "now-1000s/h"                 
 {:ok, ~U[2024-05-16 08:00:00Z]}
 
-iex(4)> DatemathEx.parse "now*1h"     
-{:error,
- "expected ISO datetime anchor while processing UTC now anchor or ISO datetime anchor"}
+iex(4)> DatemathEx.parse "2020-01-01T12:00:00+02:00"                 
+{:ok, ~U[2020-01-01 10:00:00.000000Z]}
+
+iex(5)> DatemathEx.parse "now*1h"     
+ {:error, "Expected at least one parser to succeed at line 1, column 0."}
 ```
-
-
-## Missing Functionality
-- Detailed Error report
-- Errors for wrong ISO datetime anchors
-- Timezone for ISO anchor
-
-
