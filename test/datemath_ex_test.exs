@@ -36,31 +36,31 @@ defmodule DatemathExTest do
 			out: ~U"2013-09-21T00:00:00.000Z",
 		},
 		%{
-			in:  "2014-11-18T13:00:00||+13h",
+			in:  "2014-11-18T13:00:00Z||+13h",
 			out: ~U"2014-11-19T02:00:00.000Z",
 		},
 		%{
-			in:  "2014-11-18T13:00:00||-1h",
+			in:  "2014-11-18T13:00:00Z||-1h",
 			out: ~U"2014-11-18T12:00:00.000Z",
 		},
 		%{
-			in:  "2014-11-18T14:27:32||+60s",
+			in:  "2014-11-18T14:27:32Z||+60s",
 			out: ~U"2014-11-18T14:28:32.000Z",
 		},
 		%{
-			in:  "2014-11-18T14:27:32||-3600s",
+			in:  "2014-11-18T14:27:32Z||-3600s",
 			out: ~U"2014-11-18T13:27:32.000Z",
 		},
 		%{
-			in:  "2014-11-19T14:27:32||/w",
+			in:  "2014-11-19T14:27:32Z||/w",
 			out: ~U"2014-11-17T00:00:00.000Z",
 		},
 		%{
-			in:  "2014-11-01T14:27:32||/w",
+			in:  "2014-11-01T14:27:32Z||/w",
 			out: ~U"2014-10-27T00:00:00.000Z",
 		},
 		%{
-			in:  "2014-11-15T14:27:32||/d",
+			in:  "2014-11-15T14:27:32Z||/d",
 			out: ~U"2014-11-15T00:00:00.000Z",
 		},
   ]
@@ -106,6 +106,21 @@ defmodule DatemathExTest do
 		},
   ]
 
+	@timezone_offsets [
+		%{
+			in:  "2014-05-30T20:21+03:00",
+			out: ~U"2014-05-30T17:21:00.000Z",
+		},
+		%{
+			in:  "2014-05-30T20:21:00+0200",
+			out: ~U"2014-05-30T18:21:00.000Z",
+		},
+		%{
+			in:  "2014-05-30T20:21:00+03:00",
+			out: ~U"2014-05-30T17:21:00.000Z",
+		},
+	]
+
   test "basic math" do
     for %{in: input, out: out} <- @basic_math do
       {:ok, dt}  = DatemathEx.parse input
@@ -131,4 +146,11 @@ defmodule DatemathExTest do
     {:ok, dt}  = DatemathEx.parse "2020-03-12||/w"
     assert DateTime.compare(~U"2020-03-09T00:00:00Z", dt) == :eq
   end
+
+	test "timezone offsets" do
+		for %{in: input, out: out} <- @timezone_offsets do
+			{:ok, dt}  = DatemathEx.parse(input)
+      assert DateTime.compare(out, dt) == :eq
+    end
+	end
 end

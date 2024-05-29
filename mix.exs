@@ -4,7 +4,7 @@ defmodule DatemathEx.MixProject do
   def project do
     [
       app: :datemath_ex,
-      version: "0.1.0",
+      version: "0.2.0",
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -38,7 +38,6 @@ defmodule DatemathEx.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:nimble_parsec, "~> 1.4.0"},
       {:timex, "~> 3.7"},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
     ]
